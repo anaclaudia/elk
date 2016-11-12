@@ -1,0 +1,9 @@
+---
+- hosts: elk
+  become: yes
+  roles:
+    - elasticsearch
+    - kibana
+    - nginx
+    - logstash
+    - filebeat

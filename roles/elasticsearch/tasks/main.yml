@@ -1,0 +1,45 @@
+---
+- name: Install add-apt-repostory
+  
+  apt: 
+    name: software-properties-common
+    state: latest
+
+- name: Add Oracle Java Repository
+  apt_repository: repo='ppa:webupd8team/java'
+
+- name: Accept Java 8 License
+  debconf: name='oracle-java8-installer' question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'
+
+- name: Install Oracle Java 8
+  apt: name={{item}} state=latest
+  with_items:
+   - oracle-java8-installer
+   - ca-certificates
+   - oracle-java8-set-default
+
+- apt_key: url=https://packages.elastic.co/GPG-KEY-elasticsearch
+ 
+- name: Installing https transport
+  apt:
+    name: apt-transport-https
+    state: present
+
+- apt_repository: repo='deb http://packages.elastic.co/elasticsearch/2.x/debian stable main'
+
+- name: Installing Elasticsearch
+  apt:
+    name: elasticsearch
+    state: present
+    update_cache: yes
+
+- lineinfile: "dest=/etc/elasticsearch/elasticsearch.yml regexp='^# network.host:' line='network.host: localhost'"
+  run_once: true
+  notify:
+    - restart elasticsearch
+
+- name: Start elasticsearch and enabled on boot
+  service:
+    name: elasticsearch
+    state: started
+    enabled: yes

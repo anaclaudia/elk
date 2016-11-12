@@ -1,0 +1,26 @@
+---
+
+- apt_repository: repo='deb http://packages.elastic.co/logstash/2.2/debian stable main'
+
+- name: Installing logstash
+  apt:
+    name: logstash
+    state: present
+    update_cache: yes
+
+- copy: src=logstash/ dest=/etc/logstash/conf.d/
+  tags: logstash
+
+- file: path=/opt/logstash/patterns state=directory mode=0755 owner=logstash group=logstash
+
+- copy: src=nginx/ dest=/opt/logstash/patterns
+  notify:
+    - restart logstash
+
+- file: path=/opt/logstash/patterns/nginx owner=logstash group=logstash mode=0755
+
+- name: Enable logstash on boot
+  service:
+    name: logstash
+    state: started
+    enabled: yes

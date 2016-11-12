@@ -1,0 +1,24 @@
+---
+
+- name: Installing unzip
+  apt:
+    name: unzip
+    state: present
+
+- unarchive: src=https://download.elastic.co/beats/dashboards/beats-dashboards-1.1.0.zip dest=/ remote_src=yes
+
+- command: sh load.sh
+  args:
+    chdir: /beats-dashboards-1.1.0
+
+- name: Download Index Template in Elasticsearch
+  get_url:
+    url: https://gist.githubusercontent.com/thisismitch/3429023e8438cc25b86c/raw/d8c479e2a1adcea8b1fe86570e42abab0f10f364/filebeat-index-template.json
+    dest: /vagrant
+    checksum: md5:C37117C09D014C55F7EACAF439FAA408
+  tags: filebeat
+
+- command: curl -XPUT 'http://localhost:9200/_template/filebeat?pretty' -d@filebeat-index-template.json
+  args:
+    chdir: /vagrant
+  tags: filebeat

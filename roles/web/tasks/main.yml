@@ -1,0 +1,33 @@
+---
+
+- name: Install NGINX
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- apt_repository: repo="deb https://packages.elastic.co/beats/apt stable main"
+
+- apt_key: url=https://packages.elastic.co/GPG-KEY-elasticsearch state=present
+
+- name:
+  apt:
+    name: filebeat
+    state: present
+    update_cache: yes
+
+- copy: src=filebeat/ dest=/etc/filebeat/
+  notify:
+    - restart filebeat
+
+- name: Start NGINX and enable on boot
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Start filebeat and enable on boot
+  service:
+    name: filebeat
+    state: started
+    enabled: yes

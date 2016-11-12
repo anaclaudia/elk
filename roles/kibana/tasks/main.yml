@@ -1,0 +1,21 @@
+---
+
+- apt_repository: repo='deb http://packages.elastic.co/kibana/4.4/debian stable main'
+
+- name: Installing kibana
+  apt:
+    name: kibana
+    state: present
+    update_cache: yes
+
+- lineinfile: "dest=/opt/kibana/config/kibana.yml regexp='^#server.host:' line='server.host: \"localhost\"'"
+  run_once: true
+  notify:
+    - start kibana
+
+- name: enable kibana on boot
+  service:
+    name: kibana
+    enabled: yes
+    state: started
+

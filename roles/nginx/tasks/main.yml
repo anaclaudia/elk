@@ -1,0 +1,13 @@
+---
+- name: Installing nginx (web proxy)
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - nginx
+    - apache2-utils
+
+- command: htpasswd -bc /etc/nginx/htpasswd.users kibanaadmin @dmin_Kib@N#
+- template: src=templates/my-default.conf.j2 dest=/etc/nginx/sites-available/default
+  notify:
+    - restart nginx
